@@ -1,0 +1,1 @@
+-- Create all tables and their indexes

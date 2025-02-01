@@ -1,0 +1,360 @@
+Project Filamento {
+  database_type: 'SQLite'
+}
+
+
+// ------------------------------------------------------------------------
+
+
+TableGroup "Account Information" [color: #CA4242] {
+  Users
+  Roles
+
+  Note: '''
+  These tables manage all of the information related to the accounts of specific users;
+
+  - `Users`: Stores the list of unique users in the system, including their ID values
+  - `Roles`: Stores the list of roles (permissions) that users can have to take actions
+  '''
+}
+
+
+Table Roles [headercolor: #990D0D] {
+  roleId TEXT [unique, pk]
+  name TEXT [not null]
+
+  accesslevel INTEGER [not null]
+
+  Note: '''
+  `Roles` specify the access level that specific users have to take actions within the system.
+
+  Each `user` can have exactly one role, and the access level on that role provides the system with the context is needs to know what actions and data that `user` is entitled to.
+
+  Access levels start at 0 for admin and goes up from there; thus the lower the access level, the better the access.
+  '''
+}
+
+
+Table Users [headercolor: #990D0D] {
+  userId TEXT [unique, pk]
+  role TEXT [not null, ref: > Roles.roleId]
+
+  acheronId TEXT [not null]
+  acheronProvider TEXT [not null]
+
+  name TEXT [not null]
+  profileImage TEXT [default: '']
+
+  indexes {
+    (acheronId, acheronProvider) [name: 'idx_auth_users']
+  }
+
+  Note: '''
+    Each `user` in this table is represents by our own internal `userId` as well as a combined set of `Acheron` fields to specify the external user ID in `Acheron` for this user.
+
+    As a result of this mapping style, the same user may appear as two users if multiple providers are in use.
+  '''
+}
+
+
+// ------------------------------------------------------------------------
+
+
+TableGroup "Global Data" [color: #24BAB1] {
+  FilamentBrands
+  FilamentMaterials
+  Spools
+  Filaments
+  Barcodes
+
+  Note: '''
+  These tables manage data that is intended to be wholly global to all users that have access to the system.
+
+  - `FilamentBrands`: The filament brands that are known
+  - `FilamentMaterials`: The filament materials that are known
+  - `Spools`: The filament spools that are known
+  - `Barcodes`: A list of barcodes that associate with filaments
+  - `Filaments`: Filament specific details; this ties all of the other tables together to provide a single list of all known filaments and their properties
+  '''
+}
+
+Table FilamentBrands [headercolor: #1E69FD] {
+  brandId TEXT [unique, pk]
+
+  name TEXT [unique, not null]
+  homepage TEXT [default: '']
+
+  indexes {
+    (name) [name: 'idx_brand_names']
+  }
+
+  Note: '''
+  A collection of known `brand` names and (optionally) their homepages.
+  '''
+}
+
+
+Table FilamentMaterials [headercolor: #1E69FD] {
+  materialId TEXT [unique, pk]
+
+  name TEXT [unique, not null]
+
+  indexes {
+    (name) [name: 'idx_material_names']
+  }
+
+  Note: '''
+  A collection of known `filament` `materials` (e.g. PLA or PETG) as well as Subtypes (e.g. PLA Basic, PLA Matte)
+  '''
+}
+
+
+Table Filaments [headercolor: #1E69FD] {
+  filamentId TEXT [unique, pk]
+
+  image TEXT [default: '']
+
+  brandId TEXT [not null, ref: <> FilamentBrands.brandId]
+  materialId TEXT [not null, ref: <> FilamentMaterials.materialId]
+  color TEXT [not null]
+  diameter FLOAT [default: 1.75]
+
+  reorderURL TEXT [default: '']
+
+  indexes {
+    (brandId, materialId) [name: 'idx_filament_brand_material']
+  }
+
+  Note: '''
+  The basic core information on a specific `filament`.
+
+  This does not cover all of the possible parameters; the `FilamentParameterMappings` table can apply additional parameters
+  '''
+}
+
+
+Table Barcodes [headercolor: #1E69FD] {
+  codeId TEXT [unique, pk]
+
+  // These two fields are mutually exclusive, since only one
+  // product can have a barcode of a specific value.
+  filamentId TEXT [null, ref: <> Filaments.filamentId]
+  spoolId TEXT [not null, ref: <> Spools.spoolId]
+
+  code   TEXT [not null]
+
+  // TODO: Should we add an optional spoolId to this so that
+  //       scanning a barcode can tell if you are also adding
+  //       a new spool? Requires that the spool type is always
+  //       the same for a given barcode; not sure if that is
+  //       true or not though.
+
+  indexes {
+    (code) [name: 'idx_filament_barcodes']
+  }
+
+  Note: '''
+  Associates a specific, well known `barcode` to a specific `filament`.
+
+  This allows the barcode scanner to immediately infer what kind of filament, and thus its properties, is being dealt with.
+  '''
+}
+
+
+Table Spools [headercolor: #1E69FD] {
+  spoolId TEXT [unique, pk]
+
+  name TEXT [not null]
+  description TEXT [not null, default: '']
+
+  emptyWeightGrams INTEGER [not null, default: 0]
+
+  // If a spool is marked as reusable, when removing all of the filament from a
+  // specific entry in the FilamentSpools, the system can infer whether or not
+  // the entire FilamentSpool record should be erased, or if the entry should
+  // remain and have its filament removed only, so that the spool remains in
+  // inventory/
+  reusable BOOL [not null, default: false]
+
+  // Generally speaking, only spools that are reusable have a reorder URL because
+  // non-reusable spools are usually sold with filament on them, so it would be
+  // the filament that you would reorder.
+  reorderURL TEXT [default: '']
+
+  indexes {
+    (name, reusable) [name: 'idx_spool_info']
+  }
+
+  Note: '''
+    Information about specific types and weights of `spools` that are known to the system.
+
+    A spool can optionally be `reusable`, which means that when the filament runs out, you can use the spool
+    with new filament.
+  '''
+}
+
+
+// ------------------------------------------------------------------------
+
+
+TableGroup "Filament Configuration" [color: #126E7A] {
+  FilamentParameters
+  FilamentParameterMappings
+
+  Note: '''
+  These tables manage configuration data that is specific to types of filament.
+  - `FilamentParameters`: A list of created parameters and their values
+  - `FilamentParameterMappings`: A mapping table that associates filament parameters with specific filaments
+  '''
+}
+
+
+enum filament_parameter_type {
+  text
+  int
+  float
+  bool
+  date
+  time
+  datetime
+}
+
+Table FilamentParameters [headercolor: #8F8DD8] {
+  parameterId TEXT [unique, pk]
+
+  name TEXT [not null]
+  type filament_parameter_type [not null]
+
+  text_value TEXT [default: '']
+  int_value INTEGER [default: 0]
+  float_value INTEGER [default: 0.0]
+  bool_value BOOLEAN [default: false]
+  date_value DATE [default: `now()`]
+  time_value TIME [default: `now()`]
+  datetime_value DATETIME [default: `now()`]
+
+  indexes {
+    (name) [name: 'idx_parameter_names']
+  }
+
+  Note: '''
+  Implements an open ended `filament` `parameter` system, in which any number of parameters of any type can be created and then associated with a filament.
+  '''
+}
+
+Table FilamentParameterMappings [headercolor: #8F8DD8] {
+  mappingId TEXT [unique, pk]
+
+  userId TEXT [null, ref: <> Users.userId]
+  filamentId TEXT [not null, ref: <> Filaments.filamentId]
+  parameterId TEXT [not null, ref: <> FilamentParameters.parameterId]
+
+  indexes {
+    (userId, filamentId, parameterId) [name: 'idx_filament_parameter_mapping']
+  }
+
+  Note: '''
+  Mapping table that maps some arbitrary number of `filament` `parameters` with a specific filament.
+
+  This can work in two ways:
+  1. If `userId` is `null`, then this parameter is global and applies to all `Users` that use this filament
+  2. If `userId` is not `null`, then this parameter is specific to that user only
+
+  In cases where a parameter by the same name appears as both global and user specific, the user specific version takes precedence.
+  '''
+}
+
+
+// ------------------------------------------------------------------------
+
+
+TableGroup "User Data" [color: #8F8DD8] {
+  PurchaseList
+  InventoryLocations
+  FilamentSpools
+
+  Note: '''
+  These tables manage core data that is entirely specific to a single user.
+  This group manages the user wishlist functionality.
+  - `PurchaseList`: Stores a list of `filaments` that this user has on their list to purchase more of
+  - `InventoryLocations`: Stores an arbitrarily open ended user specific list of places where filament is stored
+  - `FilamentSpools`: Stores a list of all `spools`, `filaments`, and `spool + filament` combinations a specific user owns
+  '''
+}
+
+
+Table InventoryLocations [headercolor: #6724BB] {
+  inventoryId TEXT [unique, pk]
+
+  userId TEXT [not null, ref: <> Users.userId]
+  name TEXT [not null]
+
+  indexes {
+    (userId, name) [name: 'idx_inventory_names']
+  }
+
+  Note: '''
+  An open ended, user specific tag system to allow a specific user to track the place or places that they
+  store their filament.
+  '''
+}
+
+
+Table PurchaseList [headercolor: #6724BB] {
+  purchaseId TEXT [unique, pk]
+
+  userId TEXT [not null, ref: <> Users.userId]
+
+  // Only one of filamentId and spoolId can be non-null.
+  // Further, only spools that are reusable can be added here
+  filamentId TEXT [null, ref: <> Filaments.filamentId]
+  spoolId TEXT [null, ref: <> Spools.spoolId]
+
+  count INTEGER [not null, default: 1]
+  indexes {
+    (userId, filamentId) [name: 'idx_user_purchase_list']
+  }
+
+  Note: '''
+  A specific list of `filament` and `spools` that the user wants to purchase or otherwise reorder.
+
+  In the record, `filamentId` and `spoolId` are mutually exclusive; only one or the other can be utilized, the other must be null.
+  '''
+}
+
+
+Table FilamentSpools [headercolor: #6724BB] {
+  filamentSpoolId TEXT [unique, pk]
+
+  userId TEXT [not null, ref: <> Users.userId]
+  spoolId TEXT [not null, ref: <> Spools.spoolId]
+  filamentId TEXT [null, ref: <> Filaments.filamentId]
+
+  inventoryId TEXT [null, ref: <> InventoryLocations.inventoryId]
+
+  notes TEXT [not null, default: '']
+
+  purchaseDate DATETIME [not null, default: `now()`]
+  purchasePrice FLOAT [not null, default: 0.0]
+
+  spoolAdjustWeightGrams INTEGER [default: 0]
+  filamentWeightGrams INTEGER [default: 0]
+
+  indexes {
+    (userId, spoolId, filamentId) [name: 'idx_user_spools']
+    (userId, filamentId) [name: 'idx_user_filaments']
+  }
+
+  Note: '''
+  This table tracks a single spool, optionally containing a filament, as owned by a specific user./
+
+  Extra metadata is stored such as the purchase price and date for the filament, as well as arbitrary notes and inventory information.
+
+  The record allows keeping track of how much filament is on the spool by weight, as well as being able to adjust the known weight of a spool by some amount.
+
+  This can be used to account for things that have been added to the spool, such as AMS rails for cardboard spools or dessicant holders in the spindle hub.
+  '''
+}
+
+
+// ------------------------------------------------------------------------
