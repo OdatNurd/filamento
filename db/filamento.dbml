@@ -43,6 +43,7 @@ Table Users [headercolor: #990D0D] {
   acheronProvider TEXT [not null]
 
   name TEXT [not null]
+  email TEXT [not null, default: '']
   profileImage TEXT [default: '']
 
   indexes {
@@ -112,14 +113,14 @@ Table FilamentMaterials [headercolor: #1E69FD] {
 Table Filaments [headercolor: #1E69FD] {
   filamentId TEXT [unique, pk]
 
-  image TEXT [default: '']
+  image TEXT [default: null]
 
   brandId TEXT [not null, ref: <> FilamentBrands.brandId]
   materialId TEXT [not null, ref: <> FilamentMaterials.materialId]
   color TEXT [not null]
-  diameter FLOAT [default: 1.75]
+  diameter FLOAT [not null, default: 1.75]
 
-  reorderURL TEXT [default: '']
+  reorderURL TEXT [default: null]
 
   indexes {
     (brandId, materialId) [name: 'idx_filament_brand_material']
@@ -134,14 +135,13 @@ Table Filaments [headercolor: #1E69FD] {
 
 
 Table Barcodes [headercolor: #1E69FD] {
-  codeId TEXT [unique, pk]
+  code TEXT [unique, pk]
 
   // These two fields are mutually exclusive, since only one
   // product can have a barcode of a specific value.
   filamentId TEXT [null, ref: <> Filaments.filamentId]
   spoolId TEXT [not null, ref: <> Spools.spoolId]
 
-  code   TEXT [not null]
 
   // TODO: Should we add an optional spoolId to this so that
   //       scanning a barcode can tell if you are also adding
@@ -164,8 +164,12 @@ Table Barcodes [headercolor: #1E69FD] {
 Table Spools [headercolor: #1E69FD] {
   spoolId TEXT [unique, pk]
 
+  brandId TEXT [null, ref: <> FilamentBrands.brandId]
+
   name TEXT [not null]
   description TEXT [not null, default: '']
+
+  // Should this have an image too?
 
   emptyWeightGrams INTEGER [not null, default: 0]
 
@@ -227,7 +231,7 @@ Table FilamentParameters [headercolor: #8F8DD8] {
 
   text_value TEXT [default: '']
   int_value INTEGER [default: 0]
-  float_value INTEGER [default: 0.0]
+  float_value FLOAT [default: 0.0]
   bool_value BOOLEAN [default: false]
   date_value DATE [default: `now()`]
   time_value TIME [default: `now()`]
@@ -307,12 +311,13 @@ Table PurchaseList [headercolor: #6724BB] {
 
   // Only one of filamentId and spoolId can be non-null.
   // Further, only spools that are reusable can be added here
-  filamentId TEXT [null, ref: <> Filaments.filamentId]
   spoolId TEXT [null, ref: <> Spools.spoolId]
+  filamentId TEXT [null, ref: <> Filaments.filamentId]
 
   count INTEGER [not null, default: 1]
   indexes {
-    (userId, filamentId) [name: 'idx_user_purchase_list']
+    (userId, filamentId) [name: 'idx_user_filament_purchase_list']
+    (userId, spoolId) [name: 'idx_user_spool_purchase_list']
   }
 
   Note: '''
@@ -337,8 +342,8 @@ Table FilamentSpools [headercolor: #6724BB] {
   purchaseDate DATETIME [not null, default: `now()`]
   purchasePrice FLOAT [not null, default: 0.0]
 
-  spoolAdjustWeightGrams INTEGER [default: 0]
-  filamentWeightGrams INTEGER [default: 0]
+  spoolAdjustWeightGrams INTEGER [not null, default: 0]
+  filamentWeightGrams INTEGER [not null, default: 0]
 
   indexes {
     (userId, spoolId, filamentId) [name: 'idx_user_spools']
