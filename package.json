@@ -1,0 +1,13 @@
+{
+  "name": "filamento",
+  "version": "0.1.0",
+  "description": "A filament tracking application",
+  "type": "module",
+  "scripts": {
+    "nanoid": "node scripts/generateNanoId.js"
+  },
+  "packageManager": "pnpm@10.12.4",
+  "dependencies": {
+    "nanoid": "^5.1.5"
+  }
+}

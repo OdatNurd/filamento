@@ -12,5 +12,7 @@ client/public/
 # the front and back ends
 commitReference.js
 
-# Backup databases
+# Backup databases and test databases
 /data/
+*.db
+*.db-journal

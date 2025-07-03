@@ -11,49 +11,61 @@ TableGroup "Account Information" [color: #CA4242] {
   Roles
 
   Note: '''
-  These tables manage all of the information related to the accounts of specific users;
+  These tables manage all of the information related to the accounts of specific
+  users;
 
-  - `Users`: Stores the list of unique users in the system, including their ID values
-  - `Roles`: Stores the list of roles (permissions) that users can have to take actions
+  - `Users`: Stores the list of unique users in the system, including their ID
+    values
+  - `Roles`: Stores the list of roles (permissions) that users can have to take
+    actions
   '''
 }
 
 
 Table Roles [headercolor: #990D0D] {
-  roleId TEXT [unique, pk]
+  roleId TEXT [not null, unique, pk]
   name TEXT [not null]
 
   accesslevel INTEGER [not null]
 
   Note: '''
-  `Roles` specify the access level that specific users have to take actions within the system.
+  `Roles` specify the access level that specific users have to take actions
+  within the system.
 
-  Each `user` can have exactly one role, and the access level on that role provides the system with the context is needs to know what actions and data that `user` is entitled to.
+  Each `user` can have exactly one role, and the access level on that role
+  provides the system with the context is needs to know what actions and data
+  that `user` is entitled to.
 
-  Access levels start at 0 for admin and goes up from there; thus the lower the access level, the better the access.
+  Access levels start at 0 for admin and goes up from there; thus the lower the
+  access level, the better the access.
   '''
 }
 
 
 Table Users [headercolor: #990D0D] {
-  userId TEXT [unique, pk]
+  userId TEXT [not null, unique, pk]
   role TEXT [not null, ref: > Roles.roleId]
 
-  acheronId TEXT [not null]
-  acheronProvider TEXT [not null]
-
   name TEXT [not null]
-  email TEXT [not null, default: '']
-  profileImage TEXT [default: '']
+  email TEXT [not null]
+  username TEXT [not null, default: '']
+  profileImage TEXT [not null, default: '']
 
-  indexes {
-    (acheronId, acheronProvider) [name: 'idx_auth_users']
-  }
+  createdAt DATE [not null]
+  updatedOn DATE [not null]
+  lastLogin DATE [not null]
 
   Note: '''
-    Each `user` in this table is represents by our own internal `userId` as well as a combined set of `Acheron` fields to specify the external user ID in `Acheron` for this user.
+    Each `user` in this table is represented by the associated Clerk unique
+    userId.
 
-    As a result of this mapping style, the same user may appear as two users if multiple providers are in use.
+    All of the information in the table comes to us via claims in the JWT
+    session token directly from Clerk, so we have our own local version for
+    the purposes of admin tasks, but anything that directly touches users would
+    happen through the Clerk API.
+
+    Updates to this table primarily happen as a result of calls to a WebHook on
+    the back end, which Clerk will trigger to give us user updates.
   '''
 }
 
@@ -62,27 +74,31 @@ Table Users [headercolor: #990D0D] {
 
 
 TableGroup "Global Data" [color: #24BAB1] {
-  FilamentBrands
-  FilamentMaterials
+  Brands
+  Materials
   Spools
   Filaments
   Barcodes
 
   Note: '''
-  These tables manage data that is intended to be wholly global to all users that have access to the system.
+  These tables manage data that is intended to be wholly global to all users
+  that have access to the system.
 
-  - `FilamentBrands`: The filament brands that are known
-  - `FilamentMaterials`: The filament materials that are known
+  - `Brands`: The brands of filament and spools that are known
+  - `Materials`: The filament materials that are known
   - `Spools`: The filament spools that are known
   - `Barcodes`: A list of barcodes that associate with filaments
-  - `Filaments`: Filament specific details; this ties all of the other tables together to provide a single list of all known filaments and their properties
+  - `Filaments`: Filament specific details; this ties all of the other tables
+     together to provide a single list of all known filaments and their
+     properties
   '''
 }
 
-Table FilamentBrands [headercolor: #1E69FD] {
-  brandId TEXT [unique, pk]
+Table Brands [headercolor: #1E69FD] {
+  brandId TEXT [not null, unique, pk]
 
   name TEXT [unique, not null]
+  logo TEXT [default: '']
   homepage TEXT [default: '']
 
   indexes {
@@ -90,110 +106,130 @@ Table FilamentBrands [headercolor: #1E69FD] {
   }
 
   Note: '''
-  A collection of known `brand` names and (optionally) their homepages.
+  A collection of known `brand` names and (optionally) the URL of an image of
+  their logo, and a link to their homepage.
+
+  Brands are used for both spools and filaments, and nominally when combining
+  items together, we would provide a warning if the brands do not match, though
+  we do not enforce that because we would need to track a big list of compatible
+  vendors.
   '''
 }
 
 
-Table FilamentMaterials [headercolor: #1E69FD] {
-  materialId TEXT [unique, pk]
+Table Materials [headercolor: #1E69FD] {
+  materialId TEXT [not null, unique, pk]
 
   name TEXT [unique, not null]
+  description TEXT [not null, default: '']
 
   indexes {
     (name) [name: 'idx_material_names']
   }
 
   Note: '''
-  A collection of known `filament` `materials` (e.g. PLA or PETG) as well as Subtypes (e.g. PLA Basic, PLA Matte)
+  A collection of known `filament` `materials` (e.g. PLA or PETG) as well as
+  Subtypes (e.g. PLA Basic, PLA Matte). This is just a list of informational
+  names.
   '''
 }
 
 
 Table Filaments [headercolor: #1E69FD] {
-  filamentId TEXT [unique, pk]
+  filamentId TEXT [not null, unique, pk]
+  brandId TEXT [not null, ref: <> Brands.brandId]
+  materialId TEXT [not null, ref: <> Materials.materialId]
 
   image TEXT [default: null]
 
-  brandId TEXT [not null, ref: <> FilamentBrands.brandId]
-  materialId TEXT [not null, ref: <> FilamentMaterials.materialId]
-  color TEXT [not null]
+  spoolId TEXT [not null, ref: <> Spools.spoolId]
+
+  colorName TEXT [not null]
+  colorRGB TEXT [not null, note: 'comma separated list of color stops; minimum 1 color']
   diameter FLOAT [not null, default: 1.75]
 
   reorderURL TEXT [default: null]
 
   indexes {
+    (materialId) [name: 'idx_filament_materials']
     (brandId, materialId) [name: 'idx_filament_brand_material']
   }
 
   Note: '''
-  The basic core information on a specific `filament`.
+  The basic core information on a specific `filament` known to the system. This
+  associates the brand and material of the filament and also contains a link to
+  the spool that the filament would come on when purchased.
 
-  This does not cover all of the possible parameters; the `FilamentParameterMappings` table can apply additional parameters
+  Note that as currently structured, there can be multiple entries that refer to
+  ostensibly the same filament, but with a different spool reference; example
+  being Basic Black PLA from Bambu that is a refill and another entry that is a
+  refill that comes on a spool.
   '''
 }
 
 
 Table Barcodes [headercolor: #1E69FD] {
-  code TEXT [unique, pk]
+  barcode TEXT [not null, unique, pk]
 
-  // These two fields are mutually exclusive, since only one
-  // product can have a barcode of a specific value.
+  // These two fields are mutually exclusive, since only one product can have a
+  // barcode of a specific value. In the SQL they are verified via a CHECK
+  // constraint.
+  spoolId TEXT [null, ref: <> Spools.spoolId]
   filamentId TEXT [null, ref: <> Filaments.filamentId]
-  spoolId TEXT [not null, ref: <> Spools.spoolId]
-
-
-  // TODO: Should we add an optional spoolId to this so that
-  //       scanning a barcode can tell if you are also adding
-  //       a new spool? Requires that the spool type is always
-  //       the same for a given barcode; not sure if that is
-  //       true or not though.
-
-  indexes {
-    (code) [name: 'idx_filament_barcodes']
-  }
 
   Note: '''
-  Associates a specific, well known `barcode` to a specific `filament`.
+  Associates a specific, well known `barcode` to a specific spool entry or
+  filament entry. In the table, filamentId and spoolId are thus mutually
+  exclusive.
 
-  This allows the barcode scanner to immediately infer what kind of filament, and thus its properties, is being dealt with.
+  A barcode pointing at a spool would always point at an empty reusable spool
+  that you can purchase.
+
+  A barcode pointing at a filament would point at an entry that allows you to
+  purchase that particular filament, which may be a refill or come on a spool
+  more directly; the filament entry tells you what spool is associated.
   '''
 }
 
 
 Table Spools [headercolor: #1E69FD] {
-  spoolId TEXT [unique, pk]
-
-  brandId TEXT [null, ref: <> FilamentBrands.brandId]
+  spoolId TEXT [not null, unique, pk]
+  brandId TEXT [not null, ref: <> Brands.brandId]
 
   name TEXT [not null]
   description TEXT [not null, default: '']
+  image TEXT [default: null]
 
-  // Should this have an image too?
+  emptyWeightGrams INTEGER [not null, default: 0, note: 'What the spool weighs with no filament on it']
+  initialFilamentWeightGrams INTEGER [not null, default: 1000, note: 'How many grams of filament a brand new spool starts with']
 
-  emptyWeightGrams INTEGER [not null, default: 0]
+  isReusable BOOL [not null, default: false, note: 'True if this spool is meant to be reusable with refills']
+  isRefill BOOL [not null, default: false, note: 'True if this spool is a refill meant to be used with a reusable spool']
 
-  // If a spool is marked as reusable, when removing all of the filament from a
-  // specific entry in the FilamentSpools, the system can infer whether or not
-  // the entire FilamentSpool record should be erased, or if the entry should
-  // remain and have its filament removed only, so that the spool remains in
-  // inventory/
-  reusable BOOL [not null, default: false]
-
-  // Generally speaking, only spools that are reusable have a reorder URL because
-  // non-reusable spools are usually sold with filament on them, so it would be
-  // the filament that you would reorder.
   reorderURL TEXT [default: '']
 
   indexes {
-    (name, reusable) [name: 'idx_spool_info']
+    (name) [name: 'idx_spool_names']
+    (isReusable) [name: 'idx_reusable_spools']
+    (isRefill) [name: 'idx_refill_spools']
   }
 
   Note: '''
-    Information about specific types and weights of `spools` that are known to the system.
+    Information about specific types and weights of `spools` that are known to
+    the system.
 
-    A spool can optionally be `reusable`, which means that when the filament runs out, you can use the spool
-    with new filament.
+    In the context of this table, this literally refers only to the spools
+    themselves, and never their content. As an example, there would be only five
+    total entries for Bambu labs (two kinds of reusable spool, two kinds of
+    reusable spool that comes with a filament, and one entry for the cardboard
+    hub of a refill itself).
+
+    A spool can be optionally marked as `isReusable` to indicate that this is
+    meant to be used with a refill filament.
+
+    Alternately, a spool can be optionally marked as `isRefill`, which indicates
+    that this spool is meant to be a refill used with a reusable spool and is
+    not printable on its own.
   '''
 }
 
@@ -202,69 +238,114 @@ Table Spools [headercolor: #1E69FD] {
 
 
 TableGroup "Filament Configuration" [color: #126E7A] {
-  FilamentParameters
-  FilamentParameterMappings
+  FilamentProperties
+  GlobalFilamentProperties
+  ColorFilamentProperties
+  UserFilamentProperties
 
   Note: '''
-  These tables manage configuration data that is specific to types of filament.
-  - `FilamentParameters`: A list of created parameters and their values
-  - `FilamentParameterMappings`: A mapping table that associates filament parameters with specific filaments
+  These tables manage hierarchical configuration data for filaments.
+
+  - `FilamentProperties`: Defines the master list of all possible property names
+     and their data types.
+  - `GlobalFilamentProperties`: Sets base values for a given Brand and Material
+     of filament.
+  - `ColorFilamentProperties`: Overrides global properties for a specific color
+      of a given Brand and Material of filament.
+  - `UserFilamentProperties`: Overrides any global or color properties for a
+     specific filament owned by a specific user.
   '''
 }
 
-
-enum filament_parameter_type {
-  text
-  int
-  float
-  bool
-  date
-  time
-  datetime
-}
-
-Table FilamentParameters [headercolor: #8F8DD8] {
-  parameterId TEXT [unique, pk]
-
-  name TEXT [not null]
-  type filament_parameter_type [not null]
-
-  text_value TEXT [default: '']
-  int_value INTEGER [default: 0]
-  float_value FLOAT [default: 0.0]
-  bool_value BOOLEAN [default: false]
-  date_value DATE [default: `now()`]
-  time_value TIME [default: `now()`]
-  datetime_value DATETIME [default: `now()`]
+Table FilamentProperties [headercolor: #8F8DD8] {
+  propertyId TEXT [not null, unique, pk]
+  name TEXT [not null, unique]
+  type TEXT [not null, note: "e.g. 'text', 'int', 'float', 'bool', 'date', 'time', 'datetime'"]
 
   indexes {
-    (name) [name: 'idx_parameter_names']
+    (name) [name: 'idx_filament_property_names']
   }
 
   Note: '''
-  Implements an open ended `filament` `parameter` system, in which any number of parameters of any type can be created and then associated with a filament.
+  A master list of all possible properties that can be assigned to a filament,
+  and the expected data type for that property value.
+
+  The system will ship with a set of these, but users will be able to add in new
+  entries due to being able to customize properties in a free-form way.
   '''
 }
 
-Table FilamentParameterMappings [headercolor: #8F8DD8] {
-  mappingId TEXT [unique, pk]
+Table GlobalFilamentProperties [headercolor: #8F8DD8] {
+  brandId TEXT [not null, ref: > Brands.brandId]
+  materialId TEXT [not null, ref: > Materials.materialId]
+  propertyId TEXT [not null, ref: > FilamentProperties.propertyId]
 
-  userId TEXT [null, ref: <> Users.userId]
-  filamentId TEXT [not null, ref: <> Filaments.filamentId]
-  parameterId TEXT [not null, ref: <> FilamentParameters.parameterId]
+  text_value TEXT
+  int_value INTEGER
+  float_value FLOAT
+  bool_value BOOLEAN
+  date_value DATE
+  time_value TIME
+  datetime_value DATETIME
 
   indexes {
-    (userId, filamentId, parameterId) [name: 'idx_filament_parameter_mapping']
+    (brandId, materialId, propertyId) [pk, name: 'idx_global_filament_properties']
   }
 
   Note: '''
-  Mapping table that maps some arbitrary number of `filament` `parameters` with a specific filament.
+  Defines global property values for all filaments of a specific brand and
+  material type. This is the base layer of settings upon which can be overlaid
+  settings specific to a color of filament (which is also considered global) as
+  well as user specific settings.
+  '''
+}
 
-  This can work in two ways:
-  1. If `userId` is `null`, then this parameter is global and applies to all `Users` that use this filament
-  2. If `userId` is not `null`, then this parameter is specific to that user only
+Table ColorFilamentProperties [headercolor: #8F8DD8] {
+  brandId TEXT [not null, ref: > Brands.brandId]
+  materialId TEXT [not null, ref: > Materials.materialId]
+  colorName TEXT [not null]
+  propertyId TEXT [not null, ref: > FilamentProperties.propertyId]
 
-  In cases where a parameter by the same name appears as both global and user specific, the user specific version takes precedence.
+  text_value TEXT
+  int_value INTEGER
+  float_value FLOAT
+  bool_value BOOLEAN
+  date_value DATE
+  time_value TIME
+  datetime_value DATETIME
+
+  indexes {
+    (brandId, materialId, colorName, propertyId) [pk, name: 'idx_color_filament_properties']
+  }
+
+  Note: '''
+  Overrides global properties for a specific color within a given brand and
+  material type. If a property is defined here, it will be used instead of the
+  value in GlobalFilamentProperties for the same type of filament.
+  '''
+}
+
+Table UserFilamentProperties [headercolor: #8F8DD8] {
+  userId TEXT [not null, ref: > Users.userId]
+  filamentId TEXT [not null, ref: > Filaments.filamentId]
+  propertyId TEXT [not null, ref: > FilamentProperties.propertyId]
+
+  text_value TEXT
+  int_value INTEGER
+  float_value FLOAT
+  bool_value BOOLEAN
+  date_value DATE
+  time_value TIME
+  datetime_value DATETIME
+
+  indexes {
+    (userId, filamentId, propertyId) [pk, name: 'idx_user_properties']
+  }
+
+  Note: '''
+  The highest level of specificity. This assigns a property value to a single,
+  specific filament instance owned by a user, overriding any matching property
+  from GlobalFilamentProperties or ColorFilamentProperties.
   '''
 }
 
@@ -279,69 +360,92 @@ TableGroup "User Data" [color: #8F8DD8] {
 
   Note: '''
   These tables manage core data that is entirely specific to a single user.
-  This group manages the user wishlist functionality.
-  - `PurchaseList`: Stores a list of `filaments` that this user has on their list to purchase more of
-  - `InventoryLocations`: Stores an arbitrarily open ended user specific list of places where filament is stored
-  - `FilamentSpools`: Stores a list of all `spools`, `filaments`, and `spool + filament` combinations a specific user owns
+  This group manages the user wish list functionality.
+  - `PurchaseList`: Stores a list of `filaments` that this user has on their
+     list to purchase more of
+  - `InventoryLocations`: Stores an arbitrarily open ended user specific list of
+     places where filament is stored
+  - `FilamentSpools`: Stores a list of all `spools`, `filaments`, and
+     `spool + filament` combinations a specific user owns
   '''
 }
 
 
 Table InventoryLocations [headercolor: #6724BB] {
-  inventoryId TEXT [unique, pk]
+  inventoryId TEXT [not null, unique, pk]
 
   userId TEXT [not null, ref: <> Users.userId]
+
   name TEXT [not null]
+  description TEXT [not null, default: '']
+
+  color TEXT [not null]
+  icon TEXT [not null]
 
   indexes {
-    (userId, name) [name: 'idx_inventory_names']
+    (userId, name) [name: 'idx_user_inventory_locations', unique]
   }
 
   Note: '''
-  An open ended, user specific tag system to allow a specific user to track the place or places that they
-  store their filament.
+  An open ended, user specific tag system to allow a specific user to track the
+  place or places that they store their filament.
   '''
 }
 
 
 Table PurchaseList [headercolor: #6724BB] {
-  purchaseId TEXT [unique, pk]
+  purchaseId TEXT [not null, unique, pk]
 
   userId TEXT [not null, ref: <> Users.userId]
 
-  // Only one of filamentId and spoolId can be non-null.
-  // Further, only spools that are reusable can be added here
-  spoolId TEXT [null, ref: <> Spools.spoolId]
-  filamentId TEXT [null, ref: <> Filaments.filamentId]
+  // These two values are mutually exclusive and are cross checked by using a
+  // CHECK constraint.
+  spoolId TEXT [null, ref: <> Spools.spoolId, note: 'if set, this must point at a reusable spool']
+  filamentId TEXT [null, ref: <> Filaments.filamentId, note: 'this cannot be set if the spoolId is set']
+
+  notes TEXT [not NULL, default: '']
 
   count INTEGER [not null, default: 1]
+
   indexes {
     (userId, filamentId) [name: 'idx_user_filament_purchase_list']
     (userId, spoolId) [name: 'idx_user_spool_purchase_list']
   }
 
   Note: '''
-  A specific list of `filament` and `spools` that the user wants to purchase or otherwise reorder.
+  A specific list of `filament` and `spools` that the user wants to purchase or
+  otherwise reorder; thus this counts as both a purchase list as well as a wish
+  list.
 
-  In the record, `filamentId` and `spoolId` are mutually exclusive; only one or the other can be utilized, the other must be null.
+  In the record, `filamentId` and `spoolId` are mutually exclusive; only one or
+  the other can be utilized, the other must be null.
+
+  Additionally, the only spools that can be referenced are spools that are
+  marked as reusable, since otherwise you would be buying filament, and thus the
+  filamentId should be used instead.
   '''
 }
 
 
 Table FilamentSpools [headercolor: #6724BB] {
-  filamentSpoolId TEXT [unique, pk]
+  filamentSpoolId TEXT [not null, unique, pk]
 
   userId TEXT [not null, ref: <> Users.userId]
-  spoolId TEXT [not null, ref: <> Spools.spoolId]
-  filamentId TEXT [null, ref: <> Filaments.filamentId]
+
+  spoolId TEXT [not null, ref: <> Spools.spoolId, note: 'all entries must be a specific spool, even if it is just a empty reusable']
+  filamentId TEXT [null, ref: <> Filaments.filamentId, note: 'when null, this entry is just a spool; otherwise the spool contains this filament']
 
   inventoryId TEXT [null, ref: <> InventoryLocations.inventoryId]
 
   notes TEXT [not null, default: '']
 
-  purchaseDate DATETIME [not null, default: `now()`]
-  purchasePrice FLOAT [not null, default: 0.0]
+  spoolPurchaseDate DATETIME [not null, default: `now()`]
+  spoolPurchasePrice FLOAT [not null, default: 0.0]
 
+  filamentPurchaseDate DATETIME [null, default: `now()`]
+  filamentPurchasePrice FLOAT [null, default: 0.0]
+
+  spoolEmptyWeightGrams INTEGER [not null, default: 0, note: 'The combined empty weight of the two spools that created this spool intiially']
   spoolAdjustWeightGrams INTEGER [not null, default: 0]
   filamentWeightGrams INTEGER [not null, default: 0]
 
@@ -351,13 +455,23 @@ Table FilamentSpools [headercolor: #6724BB] {
   }
 
   Note: '''
-  This table tracks a single spool, optionally containing a filament, as owned by a specific user./
+  This table tracks single items that a specific user owns, which is always a
+  spool of some sort; the spool may optionally also contain filament.
 
-  Extra metadata is stored such as the purchase price and date for the filament, as well as arbitrary notes and inventory information.
+  For combinations of reusable spool and refill filament, the two sets of date
+  and price track each side separately, where for a reusable empty spool the
+  filament information is null.
 
-  The record allows keeping track of how much filament is on the spool by weight, as well as being able to adjust the known weight of a spool by some amount.
+  For a refill spool, the same date and price is stored in both, since the
+  filament version is inherited by the spool entry when they join.
 
-  This can be used to account for things that have been added to the spool, such as AMS rails for cardboard spools or dessicant holders in the spindle hub.
+  Metadata is stored to know when and for how much this filament was purchased,
+  which allows for the scary tracking of how much a particular print job might
+  actually cost.
+
+  Additionally, the entry stores how much filament is currently on the spool, as
+  well as an additional tare value for weight added to the spool by the user,
+  such as for using desiccant in the hub or the like.
   '''
 }
 
