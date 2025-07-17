@@ -1,0 +1,25 @@
+meta {
+  name: Version
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{service}}/api/version
+  body: none
+  auth: none
+}
+
+docs {
+  Get information regarding the version of the server that is currently running.
+  
+  This will provide the:
+    - Deployment date for the release
+    - The commit that was checked out during the deployment
+    - The version of the release
+    - The execution environment
+  
+  The version number is a combination of the semver of the build and the commit hash of the `HEAD` commit at the time the build was completed.
+  
+  The execution environment indicates whether the server is running in development, staging or production.
+}

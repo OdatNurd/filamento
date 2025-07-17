@@ -4,10 +4,39 @@
   "description": "A filament tracking application",
   "type": "module",
   "scripts": {
-    "nanoid": "node scripts/generateNanoId.js"
+    "nanoid": "node scripts/generateNanoId.js",
+    "service:run": "wrangler dev --persist-to ~/.config/.wrangler/state/",
+    "service:build:dev": "cd service && rollup -c --environment BUILD_ENV:development",
+    "service:build:staging": "cd service && rollup -c --environment BUILD_ENV:staging",
+    "service:build:production": "cd service && rollup -c --environment BUILD_ENV:production",
+    "service:deploy:staging": "wrangler deploy --env=stage",
+    "service:deploy:production": "wrangler deploy --env=prod",
+    "app:deploy:staging": "pnpm run service:deploy:staging",
+    "app:deploy:production": "pnpm run service:deploy:production",
+    "db:setup:dev": "./scripts/loadSQL --database filamento --file db/migrations/01_structure.sql",
+    "db:setup:staging": "./scripts/loadSQL --database filamento-stage --file db/migrations/01_structure.sql --remote",
+    "db:setup:production": "./scripts/loadSQL --database filamento-prod --file db/migrations/01_structure.sql --remote",
+    "db:seed:dev": "./scripts/loadSQL --database filamento --file db/migrations/02_bootstrap.sql",
+    "db:seed:staging": "./scripts/loadSQL --database filamento-stage --file db/migrations/02_bootstrap.sql --remote",
+    "db:seed:production": "./scripts/loadSQL --database filamento-prod --file db/migrations/02_bootstrap.sql --remote",
+    "db:bootstrap:dev": "pnpm run db:setup:dev && pnpm run db:seed:dev",
+    "db:bootstrap:staging": "pnpm run db:setup:staging && pnpm run db:seed:staging",
+    "db:bootstrap:production": "pnpm run db:setup:production && pnpm run db:seed:production"
   },
   "packageManager": "pnpm@10.12.4",
   "dependencies": {
+    "dotenv": "^16.4.7",
+    "fs-jetpack": "^5.1.0",
+    "hono": "^4.7.0",
     "nanoid": "^5.1.5"
+  },
+  "devDependencies": {
+    "@axel669/rollup-dollar-path": "^0.1.0",
+    "@axel669/rollup-hono-files": "^0.1.2",
+    "@rollup/plugin-replace": "^6.0.2",
+    "@rollup/plugin-node-resolve": "^16.0.0",
+    "@rollup/plugin-terser": "^0.4.4",
+    "rollup": "^4.45.1",
+    "wrangler": "3.105.0"
   }
 }

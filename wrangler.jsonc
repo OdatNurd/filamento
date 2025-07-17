@@ -1,0 +1,134 @@
+{
+  "name": "filamento",
+  "main": "./service/output/main.js",
+  "compatibility_date": "2023-12-01",
+
+  /* Regardless of the environment in use, we do not want to have any preview
+   * deployments made. We always deploy specifically to our own subdomains. */
+  "workers_dev": false,
+  "preview_urls": false,
+
+  /* Files that end up in this folder are bundled with the worker, and the
+   * worker will automatically serve them as cached items when they are
+   * requested.
+   *
+   * The binding allows for the worker to fetch the content of specific files as
+   * a part of its own requests as desired. */
+  // "assets": {
+  //   "binding": "ASSETS",
+  //   "directory": "./client/output/"
+  // },
+
+  /* When developing locally, this is the IP address and port that the dev
+   * worker listens on. */
+  "dev": {
+    "ip": "localhost",
+    "port": 3000
+  },
+
+
+  /****************************************************************************/
+  /* D E V E L O P M E N T   S E T T I N G S                                  */
+  /****************************************************************************/
+
+  /* Development settings are the top level settings here; the section below
+   * defines specific execution environments with their own custom settings. */
+
+  "routes": [ /* No routes; everything is local during development. */],
+
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "filamento",
+      "database_id": "91854f53-21b5-4900-a036-492380fa1846"
+    }
+  ],
+
+  "vars": {
+    "BUILD_ENV": "development",
+  },
+
+  "build": {
+    "command": "pnpm run service:build:dev",
+    "watch_dir": "./service/src/"
+  },
+
+
+/******************************************************************************/
+
+
+  /* This key holds the non-dev environments; items in here can inherit some
+   * (but not all) of the top level keys. Here we specify specific settings for
+   * each of the non-dev environments we care about. */
+  "env": {
+
+    /**************************************************************************/
+    /* S T A G I N G   S E T T I N G S                                        */
+    /**************************************************************************/
+
+    "stage": {
+      "routes": [
+        {
+          "pattern": "filamento.nurdlabs.net",
+          "custom_domain": true,
+        },
+        {
+          "pattern": "filamento.nurdlabs.net/*",
+          "zone_id": "39b584d789de283af255fca04ff76913"
+        }
+      ],
+
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "filamento-stage",
+          "database_id": "50203b77-eb92-4ee5-a402-4cbeb564824f"
+        }
+      ],
+
+      "vars": {
+        "BUILD_ENV": "staging",
+      },
+
+      "build": {
+        "command": "pnpm run service:build:staging",
+        "watch_dir": "./service/src/"
+      },
+    },
+
+
+    /**************************************************************************/
+    /* P R O D U C T I O N   S E T T I N G S                                  */
+    /**************************************************************************/
+
+    "prod": {
+      "routes": [
+        {
+          "pattern": "filamento.odatnurd.net",
+          "custom_domain": true,
+        },
+        {
+          "pattern": "filamento.odatnurd.net/*",
+          "zone_id": "228f86abc5bc8b04719dc4671eb09dc0"
+        }
+      ],
+
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "filamento-stage",
+          "database_id": "5b56bc14-14f1-4a19-acd7-fdf0175c43ca"
+        }
+      ],
+
+      "vars": {
+        "BUILD_ENV": "production",
+      },
+
+      "build": {
+        "command": "pnpm run service:build:production",
+        "watch_dir": "./service/src/"
+      },
+    },
+  },
+}

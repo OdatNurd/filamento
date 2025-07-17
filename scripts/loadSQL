@@ -1,0 +1,128 @@
+#!/bin/bash
+
+#
+# When running locally, Wrangler is not capable of handling SQL files that have
+# comments in them due to its naive statement parser. Thus in order to run SQL
+# files locally, the comments need to be stripped out.
+#
+# Similarly, for local development we prefer to have all bound resources stored
+# in the same location, so that when multiple projects access them, everything
+# is shared.
+#
+# Wrangler has the concept of being able to change the persist location, but
+# only via command line argument.
+#
+# Taken together, this simple tool allows for loading of SQL data from the given
+# SQL file, stripping comments out, and ensuring the proper persistence location
+# is provided. It can be used for both local and remote DB accesses, but smooths
+# things out so that the same command can be executed both ways in order to
+# relieve frustrations.
+#
+# NOTE:
+#     This **MUST** be executed such that the CWD has the wrangler config file
+#     that declares the database. Otherwise it won't be able to find the proper
+#     database binding to know how to proceed.
+
+#
+#  The arguments used to persist the data into a known local wrangler location
+# when working locally.
+#
+# If this is empty, Wrangler will choose a location specific to the project that
+# is being executed currently.
+#
+PERSIST_TO="--persist-to $HOME/.config/.wrangler/state/"
+
+#
+# Wrangler can't read input SQL from a pipe, so we need to create a temporary
+# file for it to process.
+#
+TMPFILE="/tmp/$$_wrangler_is_dumb.sql"
+
+#
+# The execution target; this defaults to being local, but can be overridden on
+# the command line at startup.
+#
+TARGET="--local"
+
+#
+# Ensure that no matter how the script terminates, any temporary file we create
+# gets cleaned up.
+#
+cleanup() {
+    rm -rf $TMPFILE
+}
+trap cleanup EXIT
+
+#
+# Check through all of the command line arguments.
+#
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    #
+    # Specify the database that we should be populating.
+    #
+    -d|--database)
+      DATABASE="$2"
+      shift
+      shift
+      ;;
+    #
+    # If remote is specified, swap the target of the operation to be remote
+    # instead of local and remove the persitence information which is only
+    # used for a local DB.
+    #
+    -r|--remote)
+        TARGET="--remote"
+        PERSIST_TO=""
+        shift
+      ;;
+    #
+    # Specify the name of the file that we want to process
+    -f|--file)
+        INPUT_FILE=$2
+        shift
+        shift
+        ;;
+    #
+    # Error on unknown arguments.
+    #
+    *)
+      echo "Unknown option $1"
+      exit 1
+      ;;
+  esac
+done
+
+#
+# If we haven't been given a database, we can't populate anything.
+#
+if [ -z "$DATABASE" ]; then
+    echo "no database given; specify --database"
+    exit 1
+fi
+
+#
+# Ensure that we were given a SQL file that exists.
+#
+if [ -z "$INPUT_FILE" -o ! -f "$INPUT_FILE" ]; then
+    echo "no SQL file to load or file does not exist; specify --file"
+    exit 2
+fi
+
+#
+# In order to work, Wrangler needs to know how to talk to the database, and it
+# can only know that if there is a configuration file in the current folder that
+# tells it. As a quick test, ensure that the current directory has such a file.
+#
+if [ ! -f "wrangler.jsonc" ]; then
+    echo "no wrangler.jsonc file in the current directory"
+    exit 3
+fi
+
+#
+# Create a temporary file without comments and execute it.
+#
+echo $DATABASE, $TARGET, $INPUT_FILE
+cat $INPUT_FILE | sed -e "s/^--.*//g" -e "/^$/d" > $TMPFILE
+echo "DB: $DATABASE, loading $INPUT_FILE"
+wrangler d1 execute $DATABASE $TARGET --file=$TMPFILE $PERSIST_TO
