@@ -3,10 +3,10 @@
 --------------------------------------------------------------------------------
 
 
-DROP TABLE IF EXISTS FilamentProperties;
 DROP TABLE IF EXISTS GlobalFilamentProperties;
 DROP TABLE IF EXISTS ColorFilamentProperties;
 DROP TABLE IF EXISTS UserFilamentProperties;
+DROP TABLE IF EXISTS FilamentProperties;
 
 DROP TABLE IF EXISTS FilamentSpools;
 DROP TABLE IF EXISTS InventoryLocations;
@@ -17,9 +17,9 @@ DROP TABLE IF EXISTS Roles;
 
 DROP TABLE IF EXISTS Barcodes;
 DROP TABLE IF EXISTS Filaments;
+DROP TABLE IF EXISTS Spools;
 DROP TABLE IF EXISTS Brands;
 DROP TABLE IF EXISTS Materials;
-DROP TABLE IF EXISTS Spools;
 
 
 --------------------------------------------------------------------------------
