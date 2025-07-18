@@ -1,0 +1,46 @@
+{
+  "success": true,
+  "message": "Inventory locations fetched successfully",
+  "data": [
+    {
+      "id": "llMHIOaNnPJu8LpRT2vauo",
+      "name": "AMS",
+      "description": "Bambu Labs AMS Unit",
+      "color": "tertiary",
+      "icon": "print"
+    },
+    {
+      "id": "zXnZdue3plrjFVPwPnd335",
+      "name": "Storage 1",
+      "description": "Main airtight filament container",
+      "color": "success",
+      "icon": "file-tray-full"
+    },
+    {
+      "id": "UJS44SXyHUilP4y8Ev2Wt2",
+      "name": "Storage 2",
+      "description": "Secondary filament container",
+      "color": "success",
+      "icon": "file-tray-full"
+    },
+    {
+      "id": "g8o7xndGFsDIO17KK4K5e3",
+      "name": "Overflow",
+      "description": "Unboxed spools waiting for a home",
+      "icon": "file-tray"
+    },
+    {
+      "id": "W3EZLftE2N4jwBrBzYJ2Iw",
+      "name": "Living Room",
+      "description": "Spools for the printer in the living room",
+      "icon": "library"
+    },
+    {
+      "id": "OeXYxSc8bVTbNEjPnnY5Vn",
+      "name": "Garage",
+      "description": "High-temp and utility filaments",
+      "icon": "construct",
+      "color": "medium"
+    }
+  ]
+}

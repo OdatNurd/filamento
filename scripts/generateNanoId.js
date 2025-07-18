@@ -2,7 +2,7 @@
 
 /******************************************************************************/
 
-import { generateId } from '../src/utility/id.js';
+import { generateId } from '../client/src/utility/id.js';
 import * as readline from 'node:readline/promises';
 import { stdin as input, stdout as output } from 'node:process';
 

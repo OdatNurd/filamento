@@ -1,0 +1,281 @@
+/* For more information on custom properties, see:
+https://ionicframework.com/docs/theming/css-variables */
+
+:root {
+  /** primary **/
+  --ion-color-primary: #3880ff;
+  --ion-color-primary-rgb: 56, 128, 255;
+  --ion-color-primary-contrast: #ffffff;
+  --ion-color-primary-contrast-rgb: 255, 255, 255;
+  --ion-color-primary-shade: #3171e0;
+  --ion-color-primary-tint: #4c8dff;
+
+  /** secondary **/
+  --ion-color-secondary: #3dc2ff;
+  --ion-color-secondary-rgb: 61, 194, 255;
+  --ion-color-secondary-contrast: #ffffff;
+  --ion-color-secondary-contrast-rgb: 255, 255, 255;
+  --ion-color-secondary-shade: #36abe0;
+  --ion-color-secondary-tint: #50c8ff;
+
+  /** tertiary **/
+  --ion-color-tertiary: #5260ff;
+  --ion-color-tertiary-rgb: 82, 96, 255;
+  --ion-color-tertiary-contrast: #ffffff;
+  --ion-color-tertiary-contrast-rgb: 255, 255, 255;
+  --ion-color-tertiary-shade: #4854e0;
+  --ion-color-tertiary-tint: #6370ff;
+
+  /** success **/
+  --ion-color-success: #2dd36f;
+  --ion-color-success-rgb: 45, 211, 111;
+  --ion-color-success-contrast: #ffffff;
+  --ion-color-success-contrast-rgb: 255, 255, 255;
+  --ion-color-success-shade: #28ba62;
+  --ion-color-success-tint: #42d77d;
+
+  /** warning **/
+  --ion-color-warning: #ffc409;
+  --ion-color-warning-rgb: 255, 196, 9;
+  --ion-color-warning-contrast: #000000;
+  --ion-color-warning-contrast-rgb: 0, 0, 0;
+  --ion-color-warning-shade: #e0ac08;
+  --ion-color-warning-tint: #ffca22;
+
+  /** danger **/
+  --ion-color-danger: #eb445a;
+  --ion-color-danger-rgb: 235, 68, 90;
+  --ion-color-danger-contrast: #ffffff;
+  --ion-color-danger-contrast-rgb: 255, 255, 255;
+  --ion-color-danger-shade: #cf3c4f;
+  --ion-color-danger-tint: #ed576b;
+
+  /** dark **/
+  --ion-color-dark: #222428;
+  --ion-color-dark-rgb: 34, 36, 40;
+  --ion-color-dark-contrast: #ffffff;
+  --ion-color-dark-contrast-rgb: 255, 255, 255;
+  --ion-color-dark-shade: #1e2023;
+  --ion-color-dark-tint: #383a3e;
+
+  /** medium **/
+  --ion-color-medium: #92949c;
+  --ion-color-medium-rgb: 146, 148, 156;
+  --ion-color-medium-contrast: #ffffff;
+  --ion-color-medium-contrast-rgb: 255, 255, 255;
+  --ion-color-medium-shade: #808289;
+  --ion-color-medium-tint: #9d9fa6;
+
+  /** light **/
+  --ion-color-light: #f4f5f8;
+  --ion-color-light-rgb: 244, 245, 248;
+  --ion-color-light-contrast: #000000;
+  --ion-color-light-contrast-rgb: 0, 0, 0;
+  --ion-color-light-shade: #d7d8da;
+  --ion-color-light-tint: #f5f6f9;
+
+  --ion-background-color: #ffffff;
+  --ion-background-color-rgb: 255, 255, 255;
+
+  --ion-text-color: #000000;
+  --ion-text-color-rgb: 0, 0, 0;
+
+  --ion-toolbar-background: #f8f8f8;
+}
+
+body.dark {
+  --ion-color-primary: #428cff;
+  --ion-color-primary-rgb: 66, 140, 255;
+  --ion-color-primary-contrast: #ffffff;
+  --ion-color-primary-contrast-rgb: 255, 255, 255;
+  --ion-color-primary-shade: #3a7be0;
+  --ion-color-primary-tint: #5598ff;
+
+  --ion-color-secondary: #50c8ff;
+  --ion-color-secondary-rgb: 80, 200, 255;
+  --ion-color-secondary-contrast: #ffffff;
+  --ion-color-secondary-contrast-rgb: 255, 255, 255;
+  --ion-color-secondary-shade: #46b0e0;
+  --ion-color-secondary-tint: #62ceff;
+
+  --ion-color-tertiary: #6a64ff;
+  --ion-color-tertiary-rgb: 106, 100, 255;
+  --ion-color-tertiary-contrast: #ffffff;
+  --ion-color-tertiary-contrast-rgb: 255, 255, 255;
+  --ion-color-tertiary-shade: #5d58e0;
+  --ion-color-tertiary-tint: #7974ff;
+
+  --ion-color-success: #2fdf75;
+  --ion-color-success-rgb: 47, 223, 117;
+  --ion-color-success-contrast: #000000;
+  --ion-color-success-contrast-rgb: 0, 0, 0;
+  --ion-color-success-shade: #29c467;
+  --ion-color-success-tint: #44e283;
+
+  --ion-color-warning: #ffd534;
+  --ion-color-warning-rgb: 255, 213, 52;
+  --ion-color-warning-contrast: #000000;
+  --ion-color-warning-contrast-rgb: 0, 0, 0;
+  --ion-color-warning-shade: #e0bb2e;
+  --ion-color-warning-tint: #ffd948;
+
+  --ion-color-danger: #ff4961;
+  --ion-color-danger-rgb: 255, 73, 97;
+  --ion-color-danger-contrast: #ffffff;
+  --ion-color-danger-contrast-rgb: 255, 255, 255;
+  --ion-color-danger-shade: #e04055;
+  --ion-color-danger-tint: #ff5b71;
+
+  --ion-color-dark: #f4f5f8;
+  --ion-color-dark-rgb: 244, 245, 248;
+  --ion-color-dark-contrast: #000000;
+  --ion-color-dark-contrast-rgb: 0, 0, 0;
+  --ion-color-dark-shade: #d7d8da;
+  --ion-color-dark-tint: #f5f6f9;
+
+  --ion-color-medium: #989aa2;
+  --ion-color-medium-rgb: 152, 154, 162;
+  --ion-color-medium-contrast: #000000;
+  --ion-color-medium-contrast-rgb: 0, 0, 0;
+  --ion-color-medium-shade: #86888f;
+  --ion-color-medium-tint: #a2a4ab;
+
+  --ion-color-light: #222428;
+  --ion-color-light-rgb: 34, 36, 40;
+  --ion-color-light-contrast: #ffffff;
+  --ion-color-light-contrast-rgb: 255, 255, 255;
+  --ion-color-light-shade: #1e2023;
+  --ion-color-light-tint: #383a3e;
+
+  --ion-background-color: #121212;
+  --ion-background-color-rgb: 18, 18, 18;
+
+  --ion-text-color: #ffffff;
+  --ion-text-color-rgb: 255, 255, 255;
+
+  --ion-toolbar-background: #1f1f1f;
+}
+
+/*
+ * App Global CSS
+ * ----------------------------------------------------------------------------
+ */
+
+/* The split pane that we get in landscape mode should have a constrained width
+ * so it doesn't take up too much space. */
+ion-split-pane {
+  --side-max-width: 200px;
+}
+
+/* Customize our list header style; it looks indistinguishable from the list
+ * items in md mode otherwise. */
+ion-menu ion-list-header {
+  font-size: 0.8rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  color: var(--ion-color-medium-shade);
+}
+
+/* Adjust the scrollbars (when they appear) to be smaller and track the color
+ * scheme better. */
+ion-content::part(scroll) {
+  scrollbar-width: thin;
+  scrollbar-color: var(--ion-color-medium) var(--ion-color-light);
+}
+
+ion-content::part(scroll)::-webkit-scrollbar {
+  width: 12px;
+}
+
+ion-content::part(scroll)::-webkit-scrollbar-track {
+  background: var(--ion-color-light);
+}
+
+ion-content::part(scroll)::-webkit-scrollbar-thumb {
+  background-color: var(--ion-color-medium);
+  border-radius: 20px;
+  border: 3px solid var(--ion-color-light);
+}
+
+/*
+ * Rainbow Icon Animation
+ * ----------------------------------------------------------------------------
+ */
+@keyframes rainbow-cycle {
+  0% {
+    color: #ff0000;
+  }
+  6.25% {
+    color: #ff4d4d;
+  }
+  12.5% {
+    color: #ffc0cb;
+  }
+  18.75% {
+    color: #ffa500;
+  }
+  25% {
+    color: #ffc966;
+  }
+  31.25% {
+    color: #a0522d;
+  }
+  37.5% {
+    color: #ffff00;
+  }
+  43.75% {
+    color: #808000;
+  }
+  50% {
+    color: #008000;
+  }
+  56.25% {
+    color: #0000ff;
+  }
+  62.5% {
+    color: #3399ff;
+  }
+  68.75% {
+    color: #ffffff;
+  }
+  75% {
+    color: #c0c0c0;
+  }
+  81.25% {
+    color: #808080;
+  }
+  87.5% {
+    color: #000000;
+  }
+  93.75% {
+    color: #f0f0f0;
+  }
+  100% {
+    color: #ff0000;
+  }
+}
+
+.rainbow-icon {
+  animation: rainbow-cycle 15s linear infinite;
+}
+
+/*
+ * App Component Fixes
+ * ----------------------------------------------------------------------------
+ */
+
+/* Fix for select option text color in dark mode */
+body.dark .custom-select-popover .alert-checkbox-label,
+body.dark .custom-select-popover .alert-radio-label {
+  color: var(--ion-text-color);
+}
+
+body.dark .custom-select-popover .alert-radio-button[aria-checked='true'] .alert-radio-label {
+  color: var(--ion-color-primary);
+}
+
+/* Fix for action sheet button text color in dark mode */
+body.dark .custom-action-sheet .action-sheet-button,
+body.dark .custom-action-sheet .action-sheet-button:hover {
+  color: var(--ion-text-color);
+}

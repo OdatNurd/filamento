@@ -14,10 +14,11 @@
    *
    * The binding allows for the worker to fetch the content of specific files as
    * a part of its own requests as desired. */
-  // "assets": {
-  //   "binding": "ASSETS",
-  //   "directory": "./client/output/"
-  // },
+  "assets": {
+    "binding": "ASSETS",
+    "directory": "./client/output/",
+    "not_found_handling": "single-page-application"
+  },
 
   /* When developing locally, this is the IP address and port that the dev
    * worker listens on. */
@@ -46,6 +47,8 @@
 
   "vars": {
     "BUILD_ENV": "development",
+    "CLERK_PUBLISHABLE_KEY": "pk_test_ZmluZS1wYXJha2VldC00OC5jbGVyay5hY2NvdW50cy5kZXYk",
+    "CANNED_REQUESTS": "true",
   },
 
   "build": {
@@ -88,6 +91,8 @@
 
       "vars": {
         "BUILD_ENV": "staging",
+        "CLERK_PUBLISHABLE_KEY": "pk_test_ZmluZS1wYXJha2VldC00OC5jbGVyay5hY2NvdW50cy5kZXYk",
+        "CANNED_REQUESTS": "true",
       },
 
       "build": {
@@ -123,6 +128,8 @@
 
       "vars": {
         "BUILD_ENV": "production",
+        "CLERK_PUBLISHABLE_KEY": "pk_test_ZmluZS1wYXJha2VldC00OC5jbGVyay5hY2NvdW50cy5kZXYk",
+        "CANNED_REQUESTS": "true",
       },
 
       "build": {

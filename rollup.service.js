@@ -11,15 +11,20 @@ import terser from '@rollup/plugin-terser';
 
 import jetpack from "fs-jetpack";
 import { execSync } from 'child_process';
+import { fileURLToPath } from 'url';
+import path from 'path';
 
 
 /******************************************************************************/
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const serviceRoot = path.resolve(__dirname, 'service');
 
 const build_env = process.env.BUILD_ENV;
 const commitHash = execSync('git rev-parse --short HEAD').toString().trim();
 const buildDate = execSync('date +"%Y-%m-%dT%H:%M:%S%z"').toString().trim();
-const packageJson = jetpack.read('../package.json', 'json');
+const packageJson = jetpack.read('package.json', 'json');
 const version = `${packageJson.version}-${commitHash}`;
 
 console.log(`Server Build: ${build_env}`);
@@ -31,9 +36,9 @@ console.log(`Date:         ${buildDate}`);
 
 
 const config = {
-  input: "src/main.js",
+  input: path.resolve(serviceRoot, "src/main.js"),
   output: {
-    file: "output/main.js",
+    file: path.resolve(serviceRoot, "output/main.js"),
     format: "esm"
   },
 
@@ -48,7 +53,7 @@ const config = {
 
   plugins: [
     $path({
-        root: ".",
+        root: serviceRoot,
         paths: {
           $commit: "../commitReference.js",
         },
@@ -64,7 +69,8 @@ const config = {
     }),
 
     fileRoutes({
-      debug: true
+      debug: true,
+      source: path.resolve(serviceRoot, 'src/routes')
     }),
 
     resolve()
@@ -75,7 +81,6 @@ const config = {
 /******************************************************************************/
 
 
-/* For a production build, terse the output. */
 if (build_env === 'production') {
   config.plugins.push(terser());
 }
