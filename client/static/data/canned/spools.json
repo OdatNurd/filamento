@@ -13,7 +13,7 @@
       "currentWeight": 1000,
       "emptySpoolWeight": 246,
       "spoolWeightAdjustment": 31,
-      "filamentWeight": 1.75
+      "filamentDiameter": 1.75
     },
     {
       "id": "GzJOQvAoTwm0CT3m9MxcdZ",
@@ -26,7 +26,7 @@
       "currentWeight": 500,
       "emptySpoolWeight": 246,
       "spoolWeightAdjustment": 29,
-      "filamentWeight": 1.75
+      "filamentDiameter": 1.75
     },
     {
       "id": "7byhLKSP19UMntdBJmOvx9",
@@ -39,7 +39,7 @@
       "currentWeight": 690,
       "emptySpoolWeight": 246,
       "spoolWeightAdjustment": 30,
-      "filamentWeight": 1.75
+      "filamentDiameter": 1.75
     },
     {
       "id": "bU2HULEW9qi6IfcmW7HtlY",
@@ -52,7 +52,7 @@
       "currentWeight": 750,
       "emptySpoolWeight": 200,
       "spoolWeightAdjustment": 0,
-      "filamentWeight": 1.75
+      "filamentDiameter": 1.75
     },
     {
       "id": "awuvrzjJCce5Frv1P1AXHU",
@@ -65,7 +65,7 @@
       "currentWeight": 330,
       "emptySpoolWeight": 200,
       "spoolWeightAdjustment": 0,
-      "filamentWeight": 1.75
+      "filamentDiameter": 1.75
     },
     {
       "id": "bDR3WkvV0tEhVV1JoVNhid",
@@ -78,7 +78,7 @@
       "currentWeight": 1000,
       "emptySpoolWeight": 246,
       "spoolWeightAdjustment": 28,
-      "filamentWeight": 1.75
+      "filamentDiameter": 1.75
     },
     {
       "id": "eu4LWdEF0LHUo0LZZPFtKC",
@@ -91,7 +91,7 @@
       "currentWeight": 1000,
       "emptySpoolWeight": 246,
       "spoolWeightAdjustment": 32,
-      "filamentWeight": 1.75
+      "filamentDiameter": 1.75
     },
     {
       "id": "0niCqUvKcApy7QmxKel4Hn",
@@ -104,7 +104,7 @@
       "currentWeight": 1000,
       "emptySpoolWeight": 246,
       "spoolWeightAdjustment": 30,
-      "filamentWeight": 1.75
+      "filamentDiameter": 1.75
     },
     {
       "id": "YEGNmMi7PZP77AeMmXxkej",
@@ -117,7 +117,7 @@
       "currentWeight": 650,
       "emptySpoolWeight": 200,
       "spoolWeightAdjustment": 0,
-      "filamentWeight": 1.75
+      "filamentDiameter": 1.75
     },
     {
       "id": "Tmw5X5Fu3ow4nFHb8dRMXC",
@@ -129,7 +129,7 @@
       "currentWeight": 800,
       "emptySpoolWeight": 200,
       "spoolWeightAdjustment": 0,
-      "filamentWeight": 1.75
+      "filamentDiameter": 1.75
     },
     {
       "id": "FayA7y0XaKnkDKgwvCsGGs",
@@ -142,7 +142,7 @@
       "currentWeight": 0,
       "emptySpoolWeight": 200,
       "spoolWeightAdjustment": 0,
-      "filamentWeight": 1.75
+      "filamentDiameter": 1.75
     }
   ]
 }

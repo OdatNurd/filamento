@@ -20,7 +20,7 @@ const spoolSchema = z.object({
   currentWeight: z.number(),
   emptySpoolWeight: z.number(),
   spoolWeightAdjustment: z.number(),
-  filamentWeight: z.number(),
+  filamentDiameter: z.number(),
 });
 
 // Schema for API responses that return a list of spools

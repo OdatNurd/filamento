@@ -106,7 +106,7 @@ export const SpoolDetailModal = ({
                 <IonLabel>{spool.material}</IonLabel>
               </IonChip>
             </div>
-            <IonNote slot="end">Dia: {spool.filamentWeight}mm</IonNote>
+            <IonNote slot="end">Dia: {spool.filamentDiameter}mm</IonNote>
           </IonItem>
 
           <IonItem lines="full">
